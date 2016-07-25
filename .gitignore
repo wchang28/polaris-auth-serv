@@ -1,0 +1,14 @@
+node_modules
+bower_components
+typings
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+js
+
+ui/js
+
+login/js/bundle.js

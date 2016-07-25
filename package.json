@@ -1,0 +1,28 @@
+{
+  "name": "polaris-auth-serv",
+  "version": "0.0.1",
+  "description": "Polaris Authetication Server",
+  "main": "./js/app.js",
+  "scripts": {
+    "start": "node ./js/app.js"
+  },
+  "keywords": [
+    "authentication"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wchang28/polaris-auth-serv.git"
+  },
+  "author": "Wen Chang",
+  "license": "MIT",
+  "dependencies": {
+    "ajaxon": "git+https://github.com/wchang28/ajaxon.git",
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "express-web-seerver": "git+https://github.com/wchang28/express-web-server.git",
+    "lodash": "^4.11.1",
+    "mssql-simple": "git+https://github.com/wchang28/mssql-simple.git",
+    "no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
+    "oauth2": "git+https://github.com/wchang28/oauth2.git"
+  }
+}
