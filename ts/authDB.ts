@@ -21,7 +21,8 @@ export interface IConnectedAppDetail extends authInt.IConnectedApp {
     ad_pswd_verify: boolean;
     ad_default_domain: string;
     ad_server_url: string;
-    ad_domainDn; string;
+    ad_domainDn: string;
+    token_expiry_minutes: number;
 }
 
 interface ILoginParams {
