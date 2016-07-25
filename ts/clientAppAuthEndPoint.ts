@@ -3,7 +3,7 @@ let $J = getAJaxon(require('jquery-no-dom'));
 import * as oauth2 from 'oauth2';
 import * as authInt from './authInterfaces';
 
-export class ClientAppAuthEndPoint {
+export class ClientAppAuthEndpoint {
 	constructor (private options:authInt.IAuthorizeEndpointOptions, public clientAppSettings:oauth2.ClientAppSettings) {}
 	get redirect_uri():string {return this.clientAppSettings.redirect_uri;}
 	getError(httpErr) {
@@ -29,7 +29,7 @@ export class ClientAppAuthEndPoint {
 		$J('POST', this.options.baseUrl + path, data, done, headers, this.options.rejectUnauthorized);
 	}
 	getConnectedApp(done:(err:any, connectedApp:authInt.IConnectedApp) => void) {
-		this.$P("/services/authorize/get_connected_app", {}, (err, connectedApp) => {
+		this.$P("/services/authorize/get_connected_app", {}, (err:any, connectedApp: authInt.IConnectedApp) => {
 			if (typeof done === 'function') done(this.getError(err), connectedApp);
 		});
 	}
