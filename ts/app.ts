@@ -30,7 +30,7 @@ else
 
 let g: IGlobal = {
 	config: config
-	,authDB: new authDB.AuthorizationDB();
+	,authDB: new authDB.AuthorizationDB(config.dbConfig.sqlConfig, config.dbConfig.dbOptions)
 };
 app.set('global', g);
 

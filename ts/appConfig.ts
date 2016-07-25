@@ -1,6 +1,7 @@
 import {IWebServerConfig} from 'express-web-server';
-import * as authDB from "./authDB";
+import {IAuthDBConfig} from "./authDBConfig";
 
 export interface IAppConfig {
-	webServerConfig?: IWebServerConfig;
+	webServerConfig: IWebServerConfig;
+	dbConfig: IAuthDBConfig;
 }
