@@ -28,14 +28,21 @@ else
 
 //console.log(JSON.stringify(config));
 
+let authorizationDB = new authDB.AuthorizationDB(config.dbConfig.sqlConfig, config.dbConfig.dbOptions);
+
 let g: IGlobal = {
 	config: config
-	,authDB: new authDB.AuthorizationDB(config.dbConfig.sqlConfig, config.dbConfig.dbOptions)
+	,authDB: authorizationDB
 };
 app.set('global', g);
 
 app.use('/services', servicesRouter);
 
-startServer(config.webServerConfig, app, (secure:boolean, host:string, port:number) => {
-	console.log('app server listening at %s://%s:%s', (secure ? 'https' : 'http'), host, port);
+authorizationDB.on('connected', () => {
+	console.log('connected to the database :-)');
+	startServer(config.webServerConfig, app, (secure:boolean, host:string, port:number) => {
+		console.log('app server listening at %s://%s:%s', (secure ? 'https' : 'http'), host, port);
+	});
 });
+
+authorizationDB.connect();  // connect to the database
