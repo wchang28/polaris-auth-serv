@@ -10,7 +10,13 @@ function sha512HashHex(password:string) : string {
 	return hash.toString('hex');
 }
 
+interface IError {
+    error:string;
+    error_description: string;
+}
+
 export interface IConnectedAppDetail extends authInt.IConnectedApp {
+    redirect_uri: string;
 	instance_url: string;
     ad_pswd_verify: boolean;
     ad_default_domain: string;
@@ -34,7 +40,17 @@ export class AuthorizationDB extends SimpleMSSQL {
         return _.assignIn({client_id}, params);
     }
     getConnectedApp(clientAppSettings: oauth2.ClientAppSettings, done:(err:any, connectedApp: IConnectedAppDetail) => void) : void {
-        this.execute('[dbo].[stp_AuthGetConnectedApp]', clientAppSettings, done);
+        this.execute('[dbo].[stp_AuthGetConnectedApp]', clientAppSettings, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, recordsets[1]);
+            }
+        });
     }
     userLogin(client_id:string, params: authInt.IUserLoginParams, verifyPassword: boolean, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
         let data: ILoginParams = {
@@ -44,7 +60,17 @@ export class AuthorizationDB extends SimpleMSSQL {
             ,response_type : params.response_type
             ,signUpUserForApp: params.signUpUserForApp
         }
-        this.execute('[dbo].[stp_AuthLogin]', data, done);
+        this.execute('[dbo].[stp_AuthLogin]', data, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, recordsets[1]);
+            }
+        });
     }
     automationLogin(client_id:string, params: authInt.IAutomationLoginParams, verifyPassword: boolean, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
         let data: ILoginParams = {
@@ -54,18 +80,58 @@ export class AuthorizationDB extends SimpleMSSQL {
             ,response_type : 'token'
             ,signUpUserForApp: false
         }
-        this.execute('[dbo].[stp_AuthLogin]', data, done);
+        this.execute('[dbo].[stp_AuthLogin]', data, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, recordsets[1]);
+            }
+        });
     }
     getAccessFromCode(client_id:string, params: authInt.IGetAccessFromCodeParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);
-        this.execute('[dbo].[stp_AuthGetAccessFromCode]', data, done);
+        this.execute('[dbo].[stp_AuthGetAccessFromCode]', data, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, recordsets[1]);
+            }
+        });
     }
     refreshToken(client_id:string, params: authInt.IRefreshTokenParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);
-        this.execute('[dbo].[stp_AuthRefreshToken]', data, done);
+        this.execute('[dbo].[stp_AuthRefreshToken]', data, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, recordsets[1]);
+            }
+        });
     }
     verifyAccessToken(client_id:string, accessToken: oauth2.AccessToken, done:(err:any, user: authInt.IAuthorizedUser) => void) : void {
         let data = this.extendParams(client_id, accessToken);
-        this.execute('[dbo].[stp_AuthVerifyAccessToken]', data, done);
+        this.execute('[dbo].[stp_AuthVerifyAccessToken]', data, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, recordsets[1]);
+            }
+        });
     }
 }
