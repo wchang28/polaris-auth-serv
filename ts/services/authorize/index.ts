@@ -73,7 +73,6 @@ let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response,
                 if (err)
                     res.status(401).json(oauth2.errors.bad_credential);
                 else {
-                    console.log('active directory verified :-)');
                     req['passwordAlreadyVerified'] = true;
                     next();
                 }
