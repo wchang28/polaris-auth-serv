@@ -20,11 +20,10 @@ let getClientAppVerifier = (requireRedirectUrl: boolean, requireClientSecret: bo
             done(oauth2.errors.bad_client_secret, null);
         } else {
             getGlobal(req).authDB.getConnectedApp(clientAppSettings, (err:any, connectedApp: authDB.IConnectedAppDetail) => {
-                if (err) {
+                if (err)
                     done(err, null);
-                } else {
+                else
                     done(null, connectedApp);
-                }
             })
         }
     };
@@ -32,7 +31,7 @@ let getClientAppVerifier = (requireRedirectUrl: boolean, requireClientSecret: bo
 
 let getClientAppVerifierMiddleware = (requireRedirectUrl: boolean, requireClientSecret: boolean) => {
     let verifier = getClientAppVerifier(requireRedirectUrl, requireClientSecret);
-    return (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    return ((req:express.Request, res:express.Response, next:express.NextFunction) => {
         verifier(req, (err:any, connectedApp: authDB.IConnectedAppDetail) => {
             if (err)
                 res.status(401).json(err);
@@ -41,10 +40,9 @@ let getClientAppVerifierMiddleware = (requireRedirectUrl: boolean, requireClient
                 next();               
             }
         });
-    };
+    });
 }
-
-router.post('get_connected_app', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
+router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
     let connectedApp = getConnectedApp(req);
     let ret: authInt.IConnectedApp = {
         client_id: connectedApp.client_id
@@ -52,7 +50,7 @@ router.post('get_connected_app', getClientAppVerifierMiddleware(true, false), (r
         ,allow_reset_pswd: connectedApp.allow_reset_pswd
         ,allow_create_new_user: connectedApp.allow_create_new_user     
     }
-    res.json(getConnectedApp(req));
+    res.json(ret);
 });
 
 let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {

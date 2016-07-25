@@ -44,11 +44,11 @@ export class AuthorizationDB extends SimpleMSSQL {
             if (err)
                 done(err, null);
             else {
-                let err:IError = recordsets[0];
+                let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1]);
+                    done(null, recordsets[1][0]);
             }
         });
     }
@@ -64,11 +64,11 @@ export class AuthorizationDB extends SimpleMSSQL {
             if (err)
                 done(err, null);
             else {
-                let err:IError = recordsets[0];
+                let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1]);
+                    done(null, recordsets[1][0]);
             }
         });
     }
@@ -84,11 +84,11 @@ export class AuthorizationDB extends SimpleMSSQL {
             if (err)
                 done(err, null);
             else {
-                let err:IError = recordsets[0];
+                let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1]);
+                    done(null, recordsets[1][0]);
             }
         });
     }
@@ -98,11 +98,11 @@ export class AuthorizationDB extends SimpleMSSQL {
             if (err)
                 done(err, null);
             else {
-                let err:IError = recordsets[0];
+                let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1]);
+                    done(null, recordsets[1][0]);
             }
         });
     }
@@ -112,11 +112,11 @@ export class AuthorizationDB extends SimpleMSSQL {
             if (err)
                 done(err, null);
             else {
-                let err:IError = recordsets[0];
+                let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1]);
+                    done(null, recordsets[1][0]);
             }
         });
     }
@@ -126,11 +126,11 @@ export class AuthorizationDB extends SimpleMSSQL {
             if (err)
                 done(err, null);
             else {
-                let err:IError = recordsets[0];
+                let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1]);
+                    done(null, recordsets[1][0]);
             }
         });
     }
