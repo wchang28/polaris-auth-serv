@@ -3,19 +3,27 @@ import * as _ from 'lodash';
 import * as oauth2 from 'oauth2';
 import * as authInt from './authInterfaces';
 export {Configuration as SQLConfiguration, Options as DBOptions} from "mssql-simple";
+let sha512 = require('sha512');
 
-interface IUserLoginParams {
-    client_id:string
-	response_type : oauth2.AuthResponseType;
-	username: string;
-	passwordHash: string;
-	signUpUserForApp: boolean;
+function sha512HashHex(password:string) : string {
+	let hash = sha512(password)
+	return hash.toString('hex');
 }
 
-interface IAutomationLoginParams {
+export interface IConnectedAppDetail extends authInt.IConnectedApp {
+	instance_url: string;
+    ad_pswd_verify: boolean;
+    ad_default_domain: string;
+    ad_server_url: string;
+    ad_domainDn; string;
+}
+
+interface ILoginParams {
     client_id:string
 	username: string;
 	passwordHash: string;
+    response_type : oauth2.AuthResponseType;
+    signUpUserForApp: boolean;
 }
 
 export class AuthorizationDB extends SimpleMSSQL {
@@ -25,26 +33,28 @@ export class AuthorizationDB extends SimpleMSSQL {
     private extendParams(client_id:string, params:any) : any {  // added client_id to the params
         return _.assignIn({client_id}, params);
     }
-    getConnectedApp(clientAppSettings: oauth2.ClientAppSettings, done:(err:any, connectedApp: authInt.IConnectedApp) => void) : void {
+    getConnectedApp(clientAppSettings: oauth2.ClientAppSettings, done:(err:any, connectedApp: IConnectedAppDetail) => void) : void {
         this.execute('[dbo].[stp_AuthGetConnectedApp]', clientAppSettings, done);
     }
-    userLogin(client_id:string, params: authInt.IUserLoginParams, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
-        let data: IUserLoginParams = {
+    userLogin(client_id:string, params: authInt.IUserLoginParams, verifyPassword: boolean, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
+        let data: ILoginParams = {
             client_id:client_id
-            ,response_type : params.response_type
             ,username: params.username
-            ,passwordHash: params.password  // TODO: hash password here
+            ,passwordHash: (verifyPassword ? sha512HashHex(params.password) : null)
+            ,response_type : params.response_type
             ,signUpUserForApp: params.signUpUserForApp
         }
-        this.execute('[dbo].[stp_AuthUserLogin]', data, done);
+        this.execute('[dbo].[stp_AuthLogin]', data, done);
     }
-    automationLogin(client_id:string, params: authInt.IAutomationLoginParams, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
-        let data: IAutomationLoginParams = {
+    automationLogin(client_id:string, params: authInt.IAutomationLoginParams, verifyPassword: boolean, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
+        let data: ILoginParams = {
             client_id:client_id
             ,username: params.username
-            ,passwordHash: params.password  // TODO: hash password here
+            ,passwordHash: (verifyPassword ? sha512HashHex(params.password) : null)
+            ,response_type : 'token'
+            ,signUpUserForApp: false
         }
-        this.execute('[dbo].[stp_AuthAutomationLogin]', data, done);
+        this.execute('[dbo].[stp_AuthLogin]', data, done);
     }
     getAccessFromCode(client_id:string, params: authInt.IGetAccessFromCodeParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);

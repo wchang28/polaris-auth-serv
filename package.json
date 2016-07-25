@@ -16,6 +16,7 @@
   "author": "Wen Chang",
   "license": "MIT",
   "dependencies": {
+    "adauth": "^0.1.4",
     "ajaxon": "git+https://github.com/wchang28/ajaxon.git",
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
@@ -23,6 +24,7 @@
     "lodash": "^4.11.1",
     "mssql-simple": "git+https://github.com/wchang28/mssql-simple.git",
     "no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
-    "oauth2": "git+https://github.com/wchang28/oauth2.git"
+    "oauth2": "git+https://github.com/wchang28/oauth2.git",
+    "sha512": "0.0.1"
   }
 }

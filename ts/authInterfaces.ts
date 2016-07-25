@@ -17,16 +17,14 @@ export interface IAuthorizedUser {
 	userName: string;
 }
 
-export interface IUserLoginParams {
-	response_type : oauth2.AuthResponseType;
-	username: string;
-	password: string;
-	signUpUserForApp: boolean;
-}
-
 export interface IAutomationLoginParams {
 	username: string;
 	password: string;
+}
+
+export interface IUserLoginParams extends IAutomationLoginParams {
+	response_type : oauth2.AuthResponseType;
+	signUpUserForApp: boolean;
 }
 
 export interface ILoginResult {
