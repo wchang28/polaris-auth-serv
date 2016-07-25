@@ -78,6 +78,9 @@ let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response,
                 }
             });
         }
+    } else {
+        req['passwordAlreadyVerified'] = false;
+        next();
     }
 };
 

@@ -26,11 +26,12 @@ export interface IConnectedAppDetail extends authInt.IConnectedApp {
 }
 
 interface ILoginParams {
-    client_id:string
+    client_id: string
 	username: string;
 	passwordHash: string;
-    response_type : oauth2.AuthResponseType;
+    response_type: oauth2.AuthResponseType;
     signUpUserForApp: boolean;
+    tokenOrCode: string;
 }
 
 export class AuthorizationDB extends SimpleMSSQL {
@@ -60,6 +61,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             ,passwordHash: (verifyPassword ? sha512HashHex(params.password) : null)
             ,response_type : params.response_type
             ,signUpUserForApp: params.signUpUserForApp
+            ,tokenOrCode: ''    // TODO:
         }
         this.execute('[dbo].[stp_AuthLogin]', data, (err:any, recordsets:any[]) => {
             if (err)
@@ -80,6 +82,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             ,passwordHash: (verifyPassword ? sha512HashHex(params.password) : null)
             ,response_type : 'token'
             ,signUpUserForApp: false
+            ,tokenOrCode: ''    // TODO:
         }
         this.execute('[dbo].[stp_AuthLogin]', data, (err:any, recordsets:any[]) => {
             if (err)
