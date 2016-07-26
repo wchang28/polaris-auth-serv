@@ -15,6 +15,7 @@ export interface IConnectedApp {
 export interface IAuthorizedUser {
 	userId: string;
 	userName: string;
+	displayName: string;
 }
 
 export interface IAutomationLoginParams {
