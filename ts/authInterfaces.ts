@@ -16,6 +16,7 @@ export interface IAuthorizedUser {
 	userId: string;
 	userName: string;
 	displayName: string;
+	email: string;
 }
 
 export interface IAutomationLoginParams {
