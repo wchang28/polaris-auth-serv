@@ -117,6 +117,7 @@ export class AuthorizationDB extends SimpleMSSQL {
         } else {
             data.code = generateAuthCode();
         }
+        //console.log(JSON.stringify(data));
         this.execute('[dbo].[stp_AuthLogin]', data, (err:any, recordsets:any[]) => {
             if (err)
                 done(err, null);
@@ -132,6 +133,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                         loginResult.access = recordsets[2][0];
                     else
                         loginResult.code = recordsets[2][0]['code'];
+                    //console.log(JSON.stringify(loginResult));    
                     done(null, loginResult);
                 }
             }
@@ -149,6 +151,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             ,access_token: ret.access_token
             ,refresh_token: ret.refresh_token
         }
+        //console.log(JSON.stringify(data));
         this.execute('[dbo].[stp_AuthLogin]', data, (err:any, recordsets:any[]) => {
             if (err)
                 done(err, null);
@@ -161,6 +164,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                         user: recordsets[1][0]
                         ,access: recordsets[2][0]
                     };
+                    //console.log(JSON.stringify(loginResult)); 
                     done(null, loginResult);
                 }
             }
@@ -168,6 +172,8 @@ export class AuthorizationDB extends SimpleMSSQL {
     }
     getAccessFromCode(client_id:string, params: authInt.IGetAccessFromCodeParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);
+        let ret = generateBearerAccessTokens(true);
+        data = _.assignIn(data, ret);
         this.execute('[dbo].[stp_AuthGetAccessFromCode]', data, (err:any, recordsets:any[]) => {
             if (err)
                 done(err, null);
@@ -175,8 +181,11 @@ export class AuthorizationDB extends SimpleMSSQL {
                 let err:IError = recordsets[0][0];
                 if (err.error)
                     done(err, null);
-                else
-                    done(null, recordsets[1][0]);
+                else {
+                    let access: oauth2.Access = recordsets[1][0];
+                    //console.log(JSON.stringify(access));
+                    done(null, access);
+                }
             }
         });
     }
