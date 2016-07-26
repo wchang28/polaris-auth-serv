@@ -50,6 +50,9 @@ router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (
         ,allow_reset_pswd: connectedApp.allow_reset_pswd
         ,allow_create_new_user: connectedApp.allow_create_new_user     
     }
+    console.log('*******************************************');
+    console.log('get_connected_app return');
+    console.log('*******************************************');
     res.json(ret);
 });
 
@@ -88,6 +91,9 @@ router.post('/user_login', getClientAppVerifierMiddleware(true, false), activeDi
     let params:authInt.IUserLoginParams = req.body;
     let passwordAlreadyVerified:boolean = req['passwordAlreadyVerified'];
     getGlobal(req).authDB.userLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: authInt.ILoginResult) => {
+        console.log('*******************************************');
+        console.log('user_login return');
+        console.log('*******************************************');
         if (err)
             res.status(400).json(err);
         else
@@ -99,6 +105,9 @@ router.post('/automation_login', getClientAppVerifierMiddleware(false, true), ac
     let params:authInt.IAutomationLoginParams = req.body;
     let passwordAlreadyVerified:boolean = req['passwordAlreadyVerified'];
     getGlobal(req).authDB.automationLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: authInt.ILoginResult) => {
+        console.log('*******************************************');
+        console.log('automation_login return');
+        console.log('*******************************************');
         if (err)
             res.status(400).json(err);
         else
@@ -109,6 +118,9 @@ router.post('/automation_login', getClientAppVerifierMiddleware(false, true), ac
 router.post('/get_access_from_auth_code', getClientAppVerifierMiddleware(true, true), (req: express.Request, res: express.Response) => {
     let params: authInt.IGetAccessFromCodeParams = req.body;
     getGlobal(req).authDB.getAccessFromCode(getConnectedApp(req).client_id, params, (err:any, access: oauth2.Access) => {
+        console.log('*******************************************');
+        console.log('get_access_from_auth_code return');
+        console.log('*******************************************');
         if (err)
             res.status(400).json(err);
         else

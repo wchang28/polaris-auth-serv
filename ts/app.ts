@@ -36,6 +36,12 @@ let g: IGlobal = {
 };
 app.set('global', g);
 
+app.use((req:express.Request, res:express.Response, next: express.NextFunction) => {
+	console.log('==========================================');
+	console.log(req.path);
+	console.log('==========================================');
+});
+
 app.use('/services', servicesRouter);
 
 authorizationDB.on('connected', () => {
