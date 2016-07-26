@@ -40,3 +40,8 @@ export interface IGetAccessFromCodeParams {
 export interface IRefreshTokenParams {
 	refresh_token: string;
 }
+
+export interface ITokenVerifyParams {
+	clientAppSettings: oauth2.ClientAppSettings;
+	accessToken: oauth2.AccessToken;
+}
