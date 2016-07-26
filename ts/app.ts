@@ -38,7 +38,7 @@ app.set('global', g);
 
 app.use((req:express.Request, res:express.Response, next: express.NextFunction) => {
 	console.log('==========================================');
-	console.log(req.path);
+	console.log('path=' + req.path);
 	console.log('==========================================');
 });
 
