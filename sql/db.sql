@@ -1,16 +1,6 @@
 USE [UserAuthentication]
 GO
 
-/****** Object:  Table [dbo].[AuthAppUser]    Script Date: 7/26/2016 10:01:52 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-SET ANSI_PADDING ON
-GO
-
 CREATE TABLE [dbo].[AuthAppUser](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[UserId] [varchar](100) NOT NULL,
@@ -22,22 +12,6 @@ CREATE TABLE [dbo].[AuthAppUser](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
-GO
-
-SET ANSI_PADDING OFF
-GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  Table [dbo].[AuthCode]    Script Date: 7/26/2016 10:02:53 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[AuthCode](
@@ -53,22 +27,6 @@ CREATE TABLE [dbo].[AuthCode](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
-GO
-
-SET ANSI_PADDING OFF
-GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  Table [dbo].[AuthConnectedApp]    Script Date: 7/26/2016 10:03:20 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[AuthConnectedApp](
@@ -94,22 +52,6 @@ CREATE TABLE [dbo].[AuthConnectedApp](
 
 GO
 
-SET ANSI_PADDING OFF
-GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  Table [dbo].[AuthToken]    Script Date: 7/26/2016 10:03:47 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-SET ANSI_PADDING ON
-GO
-
 CREATE TABLE [dbo].[AuthToken](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[token_type] [varchar](50) NOT NULL,
@@ -125,22 +67,6 @@ CREATE TABLE [dbo].[AuthToken](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
-GO
-
-SET ANSI_PADDING OFF
-GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  Table [dbo].[AuthUser]    Script Date: 7/26/2016 10:04:16 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[AuthUser](
@@ -167,21 +93,6 @@ CREATE TABLE [dbo].[AuthUser](
 
 GO
 
-SET ANSI_PADDING OFF
-GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  View [dbo].[vAuthActiveConnectedApp]    Script Date: 7/26/2016 10:05:05 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
 CREATE VIEW [dbo].[vAuthActiveConnectedApp]
 as
 select
@@ -202,19 +113,7 @@ from [dbo].[AuthConnectedApp]
 where
 [enabled] = 1
 
-
 GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  View [dbo].[vAuthActiveUser]    Script Date: 7/26/2016 10:06:02 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 
 CREATE view [dbo].[vAuthActiveUser] as
 select
@@ -237,19 +136,7 @@ select
 from [dbo].[AuthUser] (nolock)
 where [IsActive]=1
 
-
 GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  StoredProcedure [dbo].[stp_AuthCreateAccess]    Script Date: 7/26/2016 10:06:40 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 
 CREATE PROCEDURE [dbo].[stp_AuthCreateAccess]
 	@client_id varchar(250)
@@ -301,17 +188,6 @@ END
 
 GO
 
-USE [UserAuthentication]
-GO
-
-/****** Object:  StoredProcedure [dbo].[stp_AuthGetConnectedApp]    Script Date: 7/26/2016 10:07:13 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
 CREATE PROCEDURE [dbo].[stp_AuthGetConnectedApp]
 	@client_id varchar(250)
 	,@client_secret varchar(100) = null
@@ -360,17 +236,6 @@ BEGIN
 END
 
 GO
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  StoredProcedure [dbo].[stp_AuthLogin]    Script Date: 7/26/2016 10:07:40 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 
 CREATE PROCEDURE [dbo].[stp_AuthLogin]
     @client_id varchar(250)
