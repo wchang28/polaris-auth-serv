@@ -7,8 +7,10 @@ let router = express.Router();
 
 // all handlers in the '/authorize' need to have a 'x-client-app' request header field
 let clientAppMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    console.log('I am here 1');
     let s = req.headers['x-client-app'];
     try {
+        console.log('I am here 2: ' + s);
         let clientAppSettings:oauth2.ClientAppSettings = JSON.parse(s);
         if (!clientAppSettings.client_id) {
             throw oauth2.errors.bad_client_id;

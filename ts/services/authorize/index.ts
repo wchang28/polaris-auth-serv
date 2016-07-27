@@ -13,13 +13,17 @@ let getConnectedApp = (req: express.Request) : authDB.IConnectedAppDetail => {re
 
 let getClientAppVerifier = (requireRedirectUrl: boolean, requireClientSecret: boolean) => {
     return (req:express.Request, done: (err:any, connectedApp: authDB.IConnectedAppDetail) => void) => {
+        console.log('I am here 3');
         let clientAppSettings:oauth2.ClientAppSettings = req['client-app'];
+        console.log('I am here 4: ' + JSON.stringify(clientAppSettings));
         if (requireRedirectUrl && !clientAppSettings.redirect_uri) {
             done(oauth2.errors.bad_redirect_uri, null);
         } else if (requireClientSecret && !clientAppSettings.client_secret) {
             done(oauth2.errors.bad_client_secret, null);
         } else {
+            console.log('I am here 5');
             getGlobal(req).authDB.getConnectedApp(clientAppSettings, (err:any, connectedApp: authDB.IConnectedAppDetail) => {
+                console.log('I am here 6');
                 if (err)
                     done(err, null);
                 else
