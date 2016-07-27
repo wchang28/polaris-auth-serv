@@ -81,12 +81,39 @@ interface ILoginParams {
 	code?: string;
 }
 
+export interface IUser {
+    id: string;
+    username: string;
+    email:string;
+    firstName:string;
+    lastName:string;
+    displayName:string;
+    companyName:string;
+    mobilePhone:string;
+    marketPromotiony: boolean;
+    passwordIsTemporary: boolean;
+    passwordExpired: boolean;
+    createdDate: Date;
+    createdById: string;
+    lastModifiedDate: Date;
+    lastModifiedById: string;
+}
+
 export class AuthorizationDB extends SimpleMSSQL {
     constructor(sqlConfig: Configuration, options?: Options) {
         super(sqlConfig, options);
     }
     private extendParams(client_id:string, params:any) : any {  // added client_id to the params
         return _.assignIn({client_id}, params);
+    }
+    private toAuthUser(user: IUser) : authInt.IAuthorizedUser {
+        let au: authInt.IAuthorizedUser = {
+            userId: user.id
+            ,userName: user.username
+            ,displayName: user.displayName
+            ,email: user.email
+        };
+        return au;
     }
     getConnectedApp(clientAppSettings: oauth2.ClientAppSettings, done:(err:any, connectedApp: IConnectedAppDetail) => void) : void {
         this.execute('[dbo].[stp_AuthGetConnectedApp]', clientAppSettings, (err:any, recordsets:any[]) => {
@@ -127,7 +154,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                     done(err, null);
                 else {
                     let loginResult: authInt.ILoginResult = {
-                        user: recordsets[1][0]
+                        user: this.toAuthUser(recordsets[1][0])
                     };
                     if (params.response_type === 'token')
                         loginResult.access = recordsets[2][0];
@@ -161,7 +188,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                     done(err, null);
                 else {
                     let loginResult: authInt.ILoginResult = {
-                        user: recordsets[1][0]
+                        user: this.toAuthUser(recordsets[1][0])
                         ,access: recordsets[2][0]
                     };
                     //console.log(JSON.stringify(loginResult)); 
@@ -213,7 +240,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                 if (err.error)
                     done(err, null);
                 else
-                    done(null, recordsets[1][0]);
+                    done(null, this.toAuthUser(recordsets[1][0]));
             }
         });
     }

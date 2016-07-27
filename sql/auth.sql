@@ -319,10 +319,7 @@ BEGIN
 	select [error]=null, [error_description]=null
 
 	select
-	[userId]=[id]
-	,[userName]=[username]
-	,[displayName]
-	,[email]
+	*
 	from [dbo].[vAuthActiveUser]
 	where [id]=@UserId
 
@@ -380,7 +377,7 @@ BEGIN
 	declare @UserId varchar(100)
 
     select
-	@UserId=[UserId]
+	@UserId=ac.[UserId]
 	from [dbo].[AuthCode] ac
 	inner join [dbo].[vAuthActiveUser] au
 	on ac.[UserId]=au.[id]
@@ -398,6 +395,53 @@ BEGIN
 
 	select error=null, error_description=null
 	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@access_token, @refresh_token=@refresh_token 
+
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[stp_AuthVerifyAccessToken]
+	@client_id varchar(250)
+	,@token_type varchar(50)
+	,@access_token varchar(250)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @UserId varchar(100)
+	declare @token_expiration datetime
+
+    select
+	@UserId=at.[UserId]
+	,@token_expiration=at.[token_expiration]
+	from [dbo].[AuthToken] at
+	inner join [dbo].[vAuthActiveUser] au
+	on at.[UserId]=au.[id]
+	inner join [dbo].[vAuthActiveConnectedApp] app
+	on at.[client_id]=app.[client_id]
+	where
+	at.[client_id]=@client_id
+	and at.[token_type]=@token_type
+	and at.[access_token]=@access_token
+
+	if @UserId is null
+	begin
+		select error='not_authorized', error_description='not authorized'
+		return
+	end
+
+	if @token_expiration is not null and getdate() >= @token_expiration
+	begin
+		select error='invalid_session_id', error_description='session expired or invalid'
+		return
+	end
+
+	select error=null, error_description=null
+
+	select
+	*
+	from [dbo].[vAuthActiveUser]
+	where [id]=@UserId
 
 END
 
