@@ -37,7 +37,7 @@ let g: IGlobal = {
 app.set('global', g);
 
 app.use((req:express.Request, res:express.Response, next: express.NextFunction) => {
-	console.log('remote client @' + req.connection.remoteAddress + ':' + req.connection.remotePort + ' access path ' + req.path);
+	console.log('remote host @' + req.connection.remoteAddress + ':' + req.connection.remotePort + ' ==> ' + req.path);
 	req.connection.remoteAddress
 	req.connection.on('error', (err:any) => {
 		console.error('!!! request socket error on path ' + req.path + ': ' + err.code);
