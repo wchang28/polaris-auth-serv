@@ -50,7 +50,7 @@ authorizationDB.on('connected', () => {
 	startServer(config.webServerConfig, app, (secure:boolean, host:string, port:number) => {
 		console.log('authentication server listening at %s://%s:%s', (secure ? 'https' : 'http'), host, port);
 	}, (err: any) => {
-		console.log('authentication server error: ' + err.code);
+		console.error('authentication server error: ' + err.code);
 	});
 }).on('error', (err:any) => {
 	console.error('!!! database error: ' + JSON.stringify(err));
