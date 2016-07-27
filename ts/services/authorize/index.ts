@@ -73,6 +73,13 @@ let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response,
             if (params.username.indexOf('\\') === -1 && connectedApp.ad_default_domain)
                 params.username = connectedApp.ad_default_domain + '\\' + params.username;
             auth.authenticate(params.username, params.password, (err, u) => {
+                auth.close((err:any) => {
+                    if (err)
+                        console.log('ADAuth closed successfully');
+                    else
+                        console.error('!!! ADAuth closed error:' + JSON.stringify(err));
+
+                });
                 if (err)
                     res.status(401).json(oauth2.errors.bad_credential);
                 else {
