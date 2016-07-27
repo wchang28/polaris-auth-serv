@@ -1,7 +1,7 @@
 import {SimpleMSSQL, Configuration, Options} from "mssql-simple";
 import * as _ from 'lodash';
 import * as oauth2 from 'oauth2';
-import * as authInt from './authInterfaces';
+import * as auth_client from 'polaris-auth-client';
 export {Configuration as SQLConfiguration, Options as DBOptions} from "mssql-simple";
 let sha512 = require('sha512');
 import * as crypto from 'crypto';
@@ -59,7 +59,7 @@ interface IError {
     error_description: string;
 }
 
-export interface IConnectedAppDetail extends authInt.IConnectedApp {
+export interface IConnectedAppDetail extends auth_client.IConnectedApp {
     redirect_uri: string;
 	instance_url: string;
     ad_pswd_verify: boolean;
@@ -106,8 +106,8 @@ export class AuthorizationDB extends SimpleMSSQL {
     private extendParams(client_id:string, params:any) : any {  // added client_id to the params
         return _.assignIn({client_id}, params);
     }
-    private toAuthUser(user: IUser) : authInt.IAuthorizedUser {
-        let au: authInt.IAuthorizedUser = {
+    private toAuthUser(user: IUser) : auth_client.IAuthorizedUser {
+        let au: auth_client.IAuthorizedUser = {
             userId: user.id
             ,userName: user.username
             ,displayName: user.displayName
@@ -128,7 +128,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    userLogin(client_id:string, params: authInt.IUserLoginParams, verifyPassword: boolean, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
+    userLogin(client_id:string, params: auth_client.IUserLoginParams, verifyPassword: boolean, done:(err:any, loginResult: auth_client.ILoginResult) => void) : void {
         let data: ILoginParams = {
             client_id:client_id
             ,username: params.username
@@ -153,7 +153,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                 if (err.error)
                     done(err, null);
                 else {
-                    let loginResult: authInt.ILoginResult = {
+                    let loginResult: auth_client.ILoginResult = {
                         user: this.toAuthUser(recordsets[1][0])
                     };
                     if (params.response_type === 'token')
@@ -166,7 +166,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    automationLogin(client_id:string, params: authInt.IAutomationLoginParams, verifyPassword: boolean, done:(err:any, loginResult: authInt.ILoginResult) => void) : void {
+    automationLogin(client_id:string, params: auth_client.IAutomationLoginParams, verifyPassword: boolean, done:(err:any, loginResult: auth_client.ILoginResult) => void) : void {
         let ret = generateBearerAccessTokens(false);
         let data: ILoginParams = {
             client_id:client_id
@@ -187,7 +187,7 @@ export class AuthorizationDB extends SimpleMSSQL {
                 if (err.error)
                     done(err, null);
                 else {
-                    let loginResult: authInt.ILoginResult = {
+                    let loginResult: auth_client.ILoginResult = {
                         user: this.toAuthUser(recordsets[1][0])
                         ,access: recordsets[2][0]
                     };
@@ -197,7 +197,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    getAccessFromCode(client_id:string, params: authInt.IGetAccessFromCodeParams, done:(err:any, access: oauth2.Access) => void) : void {
+    getAccessFromCode(client_id:string, params: auth_client.IGetAccessFromCodeParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);
         let ret = generateBearerAccessTokens(true);
         data = _.assignIn(data, ret);
@@ -216,7 +216,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    refreshToken(client_id:string, params: authInt.IRefreshTokenParams, done:(err:any, access: oauth2.Access) => void) : void {
+    refreshToken(client_id:string, params: auth_client.IRefreshTokenParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);
         this.execute('[dbo].[stp_AuthRefreshToken]', data, (err:any, recordsets:any[]) => {
             if (err)
@@ -230,7 +230,7 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    verifyAccessToken(client_id:string, accessToken: oauth2.AccessToken, done:(err:any, user: authInt.IAuthorizedUser) => void) : void {
+    verifyAccessToken(client_id:string, accessToken: oauth2.AccessToken, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
         let data = this.extendParams(client_id, accessToken);
         this.execute('[dbo].[stp_AuthVerifyAccessToken]', data, (err:any, recordsets:any[]) => {
             if (err)

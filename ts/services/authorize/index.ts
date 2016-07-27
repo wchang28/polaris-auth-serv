@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as core from 'express-serve-static-core';
 import {IGlobal} from '../../global';
 import * as oauth2 from 'oauth2';
-import * as authInt from '../../authInterfaces';
+import * as auth_client from 'polaris-auth-client';
 import * as authDB from '../../authDB';
 let ADAuth = require('adauth');
 
@@ -44,7 +44,7 @@ let getClientAppVerifierMiddleware = (requireRedirectUrl: boolean, requireClient
 }
 router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
     let connectedApp = getConnectedApp(req);
-    let ret: authInt.IConnectedApp = {
+    let ret: auth_client.IConnectedApp = {
         client_id: connectedApp.client_id
         ,name: connectedApp.name
         ,allow_reset_pswd: connectedApp.allow_reset_pswd
@@ -56,7 +56,7 @@ router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (
 let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {
     let connectedApp = getConnectedApp(req);
     if (connectedApp.ad_pswd_verify) {
-        let params:authInt.IAutomationLoginParams = req.body;
+        let params:auth_client.IAutomationLoginParams = req.body;
         let ad_server_url = connectedApp.ad_server_url;
         let ad_domainDn = connectedApp.ad_domainDn;
         if (!ad_server_url || !ad_domainDn)
@@ -91,9 +91,9 @@ let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response,
 };
 
 router.post('/user_login', getClientAppVerifierMiddleware(true, false), activeDirectoryLoginMiddleware, (req: express.Request, res: express.Response) => {
-    let params:authInt.IUserLoginParams = req.body;
+    let params:auth_client.IUserLoginParams = req.body;
     let passwordAlreadyVerified:boolean = req['passwordAlreadyVerified'];
-    getGlobal(req).authDB.userLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: authInt.ILoginResult) => {
+    getGlobal(req).authDB.userLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: auth_client.ILoginResult) => {
         if (err)
             res.status(400).json(err);
         else
@@ -102,9 +102,9 @@ router.post('/user_login', getClientAppVerifierMiddleware(true, false), activeDi
 });
 
 router.post('/automation_login', getClientAppVerifierMiddleware(false, true), activeDirectoryLoginMiddleware, (req: express.Request, res: express.Response) => {
-    let params:authInt.IAutomationLoginParams = req.body;
+    let params:auth_client.IAutomationLoginParams = req.body;
     let passwordAlreadyVerified:boolean = req['passwordAlreadyVerified'];
-    getGlobal(req).authDB.automationLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: authInt.ILoginResult) => {
+    getGlobal(req).authDB.automationLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: auth_client.ILoginResult) => {
         if (err)
             res.status(400).json(err);
         else
@@ -113,7 +113,7 @@ router.post('/automation_login', getClientAppVerifierMiddleware(false, true), ac
 });
 
 router.post('/get_access_from_auth_code', getClientAppVerifierMiddleware(true, true), (req: express.Request, res: express.Response) => {
-    let params: authInt.IGetAccessFromCodeParams = req.body;
+    let params: auth_client.IGetAccessFromCodeParams = req.body;
     getGlobal(req).authDB.getAccessFromCode(getConnectedApp(req).client_id, params, (err:any, access: oauth2.Access) => {
         if (err)
             res.status(400).json(err);
@@ -123,7 +123,7 @@ router.post('/get_access_from_auth_code', getClientAppVerifierMiddleware(true, t
 });
 
 router.post('/refresh_token', getClientAppVerifierMiddleware(false, false), (req: express.Request, res: express.Response) => {
-    let params: authInt.IRefreshTokenParams = req.body;
+    let params: auth_client.IRefreshTokenParams = req.body;
     getGlobal(req).authDB.refreshToken(getConnectedApp(req).client_id, params, (err:any, access: oauth2.Access) => {
         if (err)
             res.status(400).json(err);
@@ -134,7 +134,7 @@ router.post('/refresh_token', getClientAppVerifierMiddleware(false, false), (req
 
 router.post('/verify_token', getClientAppVerifierMiddleware(true, true), (req: express.Request, res: express.Response) => {
     let accessToken: oauth2.AccessToken = req.body;
-    getGlobal(req).authDB.verifyAccessToken(getConnectedApp(req).client_id, accessToken, (err:any, user: authInt.IAuthorizedUser) => {
+    getGlobal(req).authDB.verifyAccessToken(getConnectedApp(req).client_id, accessToken, (err:any, user: auth_client.IAuthorizedUser) => {
         if (err)
             res.status(400).json(err);
         else
