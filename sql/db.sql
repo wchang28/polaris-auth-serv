@@ -367,18 +367,6 @@ END
 
 GO
 
-
-USE [UserAuthentication]
-GO
-
-/****** Object:  StoredProcedure [dbo].[stp_AuthGetAccessFromCode]    Script Date: 7/26/2016 11:14:59 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
 CREATE PROCEDURE [dbo].[stp_AuthGetAccessFromCode]
 	@client_id varchar(250)
 	,@code varchar(100)
@@ -414,4 +402,3 @@ BEGIN
 END
 
 GO
-
