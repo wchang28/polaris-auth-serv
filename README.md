@@ -1,1 +1,1 @@
-# Polaris Authetication Server
+# Polaris Authentication Server

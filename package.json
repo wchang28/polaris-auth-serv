@@ -1,7 +1,7 @@
 {
   "name": "polaris-auth-serv",
   "version": "0.0.1",
-  "description": "Polaris Authetication Server",
+  "description": "Polaris Authentication Server",
   "main": "./js/app.js",
   "scripts": {
     "start": "node ./js/app.js"
