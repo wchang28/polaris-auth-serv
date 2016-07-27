@@ -366,3 +366,52 @@ BEGIN
 END
 
 GO
+
+
+USE [UserAuthentication]
+GO
+
+/****** Object:  StoredProcedure [dbo].[stp_AuthGetAccessFromCode]    Script Date: 7/26/2016 11:14:59 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[stp_AuthGetAccessFromCode]
+	@client_id varchar(250)
+	,@code varchar(100)
+	,@token_type varchar(50)
+	,@access_token varchar(250)
+	,@refresh_token varchar(250)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @UserId varchar(100)
+
+    select
+	@UserId=[UserId]
+	from [dbo].[AuthCode] ac
+	inner join [dbo].[vAuthActiveUser] au
+	on ac.[UserId]=au.[id]
+	inner join [dbo].[vAuthActiveConnectedApp] app
+	on ac.[client_id]=app.[client_id]
+	where
+	ac.[client_id]=@client_id
+	and ac.[code]=@code
+
+	if @UserId is null
+	begin
+		select error='not_authorized', error_description='not authorized'
+		return
+	end
+
+	select error=null, error_description=null
+	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@access_token, @refresh_token=@refresh_token 
+
+END
+
+GO
+
