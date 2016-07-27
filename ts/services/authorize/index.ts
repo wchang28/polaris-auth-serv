@@ -74,7 +74,7 @@ let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response,
                     if (err)
                         console.error('!!! Error closing connection to the Active Directory server: ' + JSON.stringify(err));
                     else
-                        console.log('connection to the Active Directory server closed successfully');
+                        console.log('connection to the Active Directory server closed successfully :-)');
                 });
                 if (err)
                     res.status(401).json(oauth2.errors.bad_credential);
