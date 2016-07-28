@@ -122,7 +122,7 @@ select
 ,[email]=[Email]
 ,[firstName]=[FirstName]
 ,[lastName]=[LastName]
-,[displayName]=IIF([FirstName] is null, [LastName], [FirstName]+' '+[LastName])
+,[displayName]=rtrim(ltrim(isnull([FirstName],'')+' '+isnull([LastName], '')))
 ,[companyName]=[CompanyName]
 ,[mobilePhone]=[MobilePhone]
 ,[marketPromotion]=[MarketPromotion]
