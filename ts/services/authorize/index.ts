@@ -53,44 +53,48 @@ router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (
     res.json(ret);
 });
 
-let activeDirectoryLoginMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    let connectedApp = getConnectedApp(req);
-    if (connectedApp.ad_pswd_verify) {
-        let params:auth_client.IAutomationLoginParams = req.body;
-        let ad_server_url = connectedApp.ad_server_url;
-        let ad_domainDn = connectedApp.ad_domainDn;
-        if (!ad_server_url || !ad_domainDn)
-            res.status(401).json(oauth2.errors.bad_credential);
-        else {
-            let adAuthOptions = {
-                url: ad_server_url
-                ,domainDn: ad_domainDn
-            };
-            let auth = new ADAuth(adAuthOptions);
-            if (params.username.indexOf('\\') === -1 && connectedApp.ad_default_domain)
-                params.username = connectedApp.ad_default_domain + '\\' + params.username;
-            auth.authenticate(params.username, params.password, (err, u) => {
-                auth.close((err:any) => {
+let credentialInputsVerifierMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    let params:auth_client.IAutomationLoginParams = req.body;
+    if (!params.username || !params.password)
+        res.status(401).json(oauth2.errors.bad_credential);
+    else {
+        let connectedApp = getConnectedApp(req);
+        if (connectedApp.ad_pswd_verify) {
+            let ad_server_url = connectedApp.ad_server_url;
+            let ad_domainDn = connectedApp.ad_domainDn;
+            if (!ad_server_url || !ad_domainDn)
+                res.status(401).json(oauth2.errors.bad_credential);
+            else {
+                let adAuthOptions = {
+                    url: ad_server_url
+                    ,domainDn: ad_domainDn
+                };
+                let auth = new ADAuth(adAuthOptions);
+                if (params.username.indexOf('\\') === -1 && connectedApp.ad_default_domain)
+                    params.username = connectedApp.ad_default_domain + '\\' + params.username;
+                auth.authenticate(params.username, params.password, (err, u) => {
+                    auth.close((err:any) => {
+                        if (err)
+                            console.error('!!! Error closing connection to the Active Directory server: ' + JSON.stringify(err));
+                        else
+                            console.log('connection to the Active Directory server closed successfully :-)');
+                    });
                     if (err)
-                        console.error('!!! Error closing connection to the Active Directory server: ' + JSON.stringify(err));
-                    else
-                        console.log('connection to the Active Directory server closed successfully :-)');
+                        res.status(401).json(oauth2.errors.bad_credential);
+                    else {
+                        req['passwordAlreadyVerified'] = true;
+                        next();
+                    }
                 });
-                if (err)
-                    res.status(401).json(oauth2.errors.bad_credential);
-                else {
-                    req['passwordAlreadyVerified'] = true;
-                    next();
-                }
-            });
+            }
+        } else {
+            req['passwordAlreadyVerified'] = false;
+            next();
         }
-    } else {
-        req['passwordAlreadyVerified'] = false;
-        next();
     }
 };
 
-router.post('/user_login', getClientAppVerifierMiddleware(true, false), activeDirectoryLoginMiddleware, (req: express.Request, res: express.Response) => {
+router.post('/user_login', getClientAppVerifierMiddleware(true, false), credentialInputsVerifierMiddleware, (req: express.Request, res: express.Response) => {
     let params:auth_client.IUserLoginParams = req.body;
     let passwordAlreadyVerified:boolean = req['passwordAlreadyVerified'];
     getGlobal(req).authDB.userLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: auth_client.ILoginResult) => {
@@ -101,7 +105,7 @@ router.post('/user_login', getClientAppVerifierMiddleware(true, false), activeDi
     });
 });
 
-router.post('/automation_login', getClientAppVerifierMiddleware(false, true), activeDirectoryLoginMiddleware, (req: express.Request, res: express.Response) => {
+router.post('/automation_login', getClientAppVerifierMiddleware(false, true), credentialInputsVerifierMiddleware, (req: express.Request, res: express.Response) => {
     let params:auth_client.IAutomationLoginParams = req.body;
     let passwordAlreadyVerified:boolean = req['passwordAlreadyVerified'];
     getGlobal(req).authDB.automationLogin(getConnectedApp(req).client_id, params, !passwordAlreadyVerified, (err:any, loginResult: auth_client.ILoginResult) => {
