@@ -75,7 +75,9 @@ CREATE TABLE [dbo].[AuthToken](
 GO
 
 CREATE INDEX [IX_AuthToken] ON [dbo].[AuthToken] ([client_id], [token_type], [access_token])
+GO
 
+CREATE INDEX [IX_AuthToken_1] ON [dbo].[AuthToken] ([client_id], [refresh_token])
 GO
 
 CREATE TABLE [dbo].[AuthUser](
@@ -403,7 +405,7 @@ BEGIN
 	end
 
 	select error=null, error_description=null
-	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@access_token, @refresh_token=@refresh_token 
+	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@access_token, @refresh_token=@refresh_token
 
 END
 
@@ -451,6 +453,43 @@ BEGIN
 	*
 	from [dbo].[vAuthActiveUser]
 	where [id]=@UserId
+
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[stp_AuthRefreshToken]
+	@client_id varchar(250)
+	,@refresh_token varchar(250)
+	,@new_access_token varchar(250)
+	,@new_refresh_token varchar(250)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @UserId varchar(100)
+	declare @token_type varchar(50)
+
+	select
+	@UserId=at.[UserId]
+	,@token_type=at.[token_type]
+	from [dbo].[AuthToken] at
+	inner join [dbo].[vAuthActiveUser] au
+	on at.[UserId]=au.[id]
+	inner join [dbo].[vAuthActiveConnectedApp] app
+	on at.[client_id]=app.[client_id]
+	where
+	at.[client_id]=@client_id
+	and at.[refresh_token]=@refresh_token
+
+	if @UserId is null
+	begin
+		select error='not_authorized', error_description='not authorized'
+		return
+	end
+
+	select error=null, error_description=null
+	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@new_access_token, @refresh_token=@new_refresh_token
 
 END
 

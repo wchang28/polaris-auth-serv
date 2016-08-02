@@ -218,6 +218,9 @@ export class AuthorizationDB extends SimpleMSSQL {
     }
     refreshToken(client_id:string, params: auth_client.IRefreshTokenParams, done:(err:any, access: oauth2.Access) => void) : void {
         let data = this.extendParams(client_id, params);
+        let ret = generateBearerAccessTokens(true);
+        data.new_access_token = ret.access_token;
+        data.new_refresh_token = ret.refresh_token;
         this.execute('[dbo].[stp_AuthRefreshToken]', data, (err:any, recordsets:any[]) => {
             if (err)
                 done(err, null);
