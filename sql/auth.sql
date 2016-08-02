@@ -1,6 +1,3 @@
-USE [UserAuthentication]
-GO
-
 CREATE TABLE [dbo].[AuthAppUser](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[UserId] [varchar](100) NOT NULL,
@@ -11,6 +8,10 @@ CREATE TABLE [dbo].[AuthAppUser](
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+GO
+
+CREATE UNIQUE INDEX [IX_AuthAppUser] ON [dbo].[AuthAppUser] ([client_id], [UserId])
 
 GO
 
@@ -26,6 +27,10 @@ CREATE TABLE [dbo].[AuthCode](
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+GO
+
+CREATE UNIQUE INDEX [IX_AuthCode] ON [dbo].[AuthCode] ([code], [client_id])
 
 GO
 
@@ -66,6 +71,10 @@ CREATE TABLE [dbo].[AuthToken](
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+GO
+
+CREATE INDEX [IX_AuthToken] ON [dbo].[AuthToken] ([client_id], [token_type], [access_token])
 
 GO
 
