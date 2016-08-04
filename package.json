@@ -22,6 +22,7 @@
     "express": "^4.13.4",
     "express-web-seerver": "git+https://github.com/wchang28/express-web-server.git",
     "lodash": "^4.11.1",
+    "msnodesqlv8": "^0.2.3",
     "mssql-simple": "git+https://github.com/wchang28/mssql-simple.git",
     "no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
     "oauth2": "git+https://github.com/wchang28/oauth2.git",
