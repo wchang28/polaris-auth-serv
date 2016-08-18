@@ -41,6 +41,7 @@ CREATE TABLE [dbo].[AuthConnectedApp](
 	[client_secret] [varchar](100) NOT NULL,
 	[redirect_uri] [varchar](max) NOT NULL,
 	[instance_url] [varchar](max) NULL,
+	[rejectUnauthorized] [bit],
 	[allow_reset_pswd] [bit] NOT NULL,
 	[allow_create_new_user] [bit] NOT NULL,
 	[ad_pswd_verify] [bit] NOT NULL,
@@ -112,6 +113,7 @@ select
 ,[client_secret]
 ,[redirect_uri]
 ,[instance_url]
+,[rejectUnauthorized]
 ,[allow_reset_pswd]
 ,[allow_create_new_user]
 ,[ad_pswd_verify]
@@ -190,6 +192,7 @@ BEGIN
 	,t.[access_token]
 	,t.[refresh_token]
 	,app.[instance_url]
+	,app.[rejectUnauthorized]
 	from [dbo].[AuthToken] t (nolock)
 	inner join [dbo].[vAuthActiveConnectedApp] app
 	on t.[client_id]=app.[client_id]
