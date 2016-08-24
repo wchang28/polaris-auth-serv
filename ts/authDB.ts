@@ -247,12 +247,58 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    SSPR(username:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    SSPR(username:string, done:(err:any, params: auth_client.IResetPasswordParams) => void) : void {
+        let pin = generatePINCode();
+        this.execute('[dbo].[stp_AuthSSPR]', {username, pin}, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0][0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, {pin});
+            }
+        });
     }
-    resetPassword(pin:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    resetPassword(pin:string, done:(err:any) => void) : void {
+         this.execute('[dbo].[stp_AuthResetPassword]', {pin}, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err);
+            else {
+                let err:IError = recordsets[0][0];
+                if (err.error)
+                    done(err);
+                else
+                    done(null);
+            }
+        });
     }
     lookupUser(username:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+         this.execute('[dbo].[stp_AuthLookupUser]', {username}, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0][0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, this.toAuthUser(recordsets[1][0]));
+            }
+        });
     }
-    signupNewUser(accountOptions:auth_client.IAccountOptions, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    signUpNewUser(accountOptions:auth_client.IAccountOptions, client_id:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+        let data = this.extendParams(client_id, accountOptions);
+        this.execute('[dbo].[stp_AuthSignUpNewUser]', data, (err:any, recordsets:any[]) => {
+            if (err)
+                done(err, null);
+            else {
+                let err:IError = recordsets[0][0];
+                if (err.error)
+                    done(err, null);
+                else
+                    done(null, this.toAuthUser(recordsets[1][0]));
+            }
+        });
     }
 }
