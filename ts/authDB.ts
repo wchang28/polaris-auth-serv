@@ -70,6 +70,7 @@ export interface IConnectedAppDetail extends auth_client.IConnectedApp {
     ad_domainDn: string;
     token_expiry_minutes: number;
     auth_code_expiry_minutes: number;
+    init_user_stp: string;
 }
 
 interface ILoginParams {
