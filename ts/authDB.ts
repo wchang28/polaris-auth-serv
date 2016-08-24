@@ -288,7 +288,18 @@ export class AuthorizationDB extends SimpleMSSQL {
         });
     }
     signUpNewUser(accountOptions:auth_client.IAccountOptions, client_id:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
-        let data = this.extendParams(client_id, accountOptions);
+        let data:any = {
+            client_id: client_id
+            ,userId: generateObjectId()
+            ,username: accountOptions.username
+            ,passwordHash: sha512HashHex(accountOptions.password)
+            ,firstName: accountOptions.firstName
+            ,lastName: accountOptions.lastName
+            ,email: accountOptions.email
+            ,companyName: (accountOptions.companyName ? accountOptions.companyName : null)
+            ,mobilePhone: (accountOptions.mobilePhone ? accountOptions.mobilePhone : null)
+            ,promotionalMaterial: (typeof accountOptions.promotionalMaterial === 'boolean' ? accountOptions.promotionalMaterial : null)
+        };
         this.execute('[dbo].[stp_AuthSignUpNewUser]', data, (err:any, recordsets:any[]) => {
             if (err)
                 done(err, null);
