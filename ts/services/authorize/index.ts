@@ -146,4 +146,14 @@ router.post('/verify_token', getClientAppVerifierMiddleware(true, true), (req: e
     });
 });
 
+router.post('/lookup_user', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
+    let params:any = req.body;
+    getGlobal(req).authDB.lookupUser(params.username, (err:any, user: auth_client.IAuthorizedUser) => {
+        if (err)
+            res.status(400).json(err);
+        else
+            res.json(user);
+    });
+});
+
 export {router as Router};

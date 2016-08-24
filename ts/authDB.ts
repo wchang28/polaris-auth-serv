@@ -247,4 +247,6 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
+    lookupUser(username:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    }
 }
