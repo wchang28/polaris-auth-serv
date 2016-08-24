@@ -60,13 +60,16 @@ interface IError {
 }
 
 export interface IConnectedAppDetail extends auth_client.IConnectedApp {
+    client_secret: string;
     redirect_uri: string;
 	instance_url: string;
+    rejectUnauthorized: boolean;
     ad_pswd_verify: boolean;
     ad_default_domain: string;
     ad_server_url: string;
     ad_domainDn: string;
     token_expiry_minutes: number;
+    auth_code_expiry_minutes: number;
 }
 
 interface ILoginParams {
