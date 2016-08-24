@@ -146,9 +146,39 @@ router.post('/verify_token', getClientAppVerifierMiddleware(true, true), (req: e
     });
 });
 
+router.post('/sspr', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
+    let params:auth_client.IUsernameParams = req.body;
+    getGlobal(req).authDB.SSPR(params.username, (err:any, user: auth_client.IAuthorizedUser) => {
+        if (err)
+            res.status(400).json(err);
+        else
+            res.json(user);
+    });
+});
+
+router.post('/reset_password', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
+    let params:auth_client.IResetPasswordParams = req.body;
+    getGlobal(req).authDB.resetPassword(params.pin, (err:any, user: auth_client.IAuthorizedUser) => {
+        if (err)
+            res.status(400).json(err);
+        else
+            res.json(user);
+    });
+});
+
 router.post('/lookup_user', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
-    let params:any = req.body;
+    let params:auth_client.IUsernameParams = req.body;
     getGlobal(req).authDB.lookupUser(params.username, (err:any, user: auth_client.IAuthorizedUser) => {
+        if (err)
+            res.status(400).json(err);
+        else
+            res.json(user);
+    });
+});
+
+router.post('/sign_up_new_user', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
+    let accountOptions:auth_client.IAccountOptions = req.body;
+    getGlobal(req).authDB.signupNewUser(accountOptions, (err:any, user: auth_client.IAuthorizedUser) => {
         if (err)
             res.status(400).json(err);
         else

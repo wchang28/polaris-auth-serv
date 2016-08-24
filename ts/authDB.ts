@@ -247,6 +247,12 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
+    SSPR(username:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    }
+    resetPassword(pin:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    }
     lookupUser(username:string, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+    }
+    signupNewUser(accountOptions:auth_client.IAccountOptions, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
     }
 }
