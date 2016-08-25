@@ -48,7 +48,8 @@ router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (
         client_id: connectedApp.client_id
         ,name: connectedApp.name
         ,allow_reset_pswd: connectedApp.allow_reset_pswd
-        ,allow_create_new_user: connectedApp.allow_create_new_user     
+        ,allow_create_new_user: connectedApp.allow_create_new_user
+        ,allow_auto_app_sign_up: connectedApp.allow_auto_app_sign_up
     }
     res.json(ret);
 });
