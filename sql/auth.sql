@@ -1,20 +1,3 @@
-CREATE TABLE [dbo].[AuthAppUser](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[UserId] [varchar](100) NOT NULL,
-	[client_id] [varchar](250) NOT NULL,
-	[time] [datetime] NOT NULL,
- CONSTRAINT [PK_AuthAppUser] PRIMARY KEY CLUSTERED 
-(
-	[id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
-GO
-
-CREATE UNIQUE INDEX [IX_AuthAppUser] ON [dbo].[AuthAppUser] ([client_id], [UserId])
-
-GO
-
 CREATE TABLE [dbo].[AuthCode](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[code] [varchar](100) NOT NULL,
@@ -50,7 +33,9 @@ CREATE TABLE [dbo].[AuthConnectedApp](
 	[ad_domainDn] [varchar](250) NULL,
 	[token_expiry_minutes] [int] NULL,
 	[auth_code_expiry_minutes] [int] NULL,
- CONSTRAINT [PK_Auth2ConnectedApp] PRIMARY KEY CLUSTERED 
+	[func_is_user_signed_up_for_app] [varchar](250) NULL,
+	[stp_auto_app_sign_up] [varchar](250) NULL,
+ CONSTRAINT [PK_AuthConnectedApp] PRIMARY KEY CLUSTERED 
 (
 	[client_id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -125,7 +110,10 @@ select
 ,[ad_domainDn]
 ,[token_expiry_minutes]
 ,[auth_code_expiry_minutes]
-from [dbo].[AuthConnectedApp]
+,[func_is_user_signed_up_for_app]
+,[stp_auto_app_sign_up]
+,[allow_auto_app_sign_up] = cast(iif([stp_auto_app_sign_up] is null, 0, 1) as bit)
+from [dbo].[AuthConnectedApp] (nolock)
 where
 [enabled] = 1
 
@@ -278,6 +266,8 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	-- verify user credential
+	--=============================================================================================================================
 	declare @UserId varchar(100)
 	declare @pHash varchar(250)
 	declare @passwordIsTemporary bit
@@ -325,23 +315,28 @@ BEGIN
 			end
 		end
 	end
+	--=============================================================================================================================
 
-	if not exists (select [client_id] from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id)
+	--********************************************************
+	-- user's credential is verified at this point
+	-- need to verify user to sign up to the app
+	--********************************************************
+
+	--=============================================================================================================================
+	declare @userSignedUpForApp int
+	exec @userSignedUpForApp = [dbo].[stp_AuthIsUserSignedUpForApp] @userId=@UserId, @client_id=@client_id
+
+	if @userSignedUpForApp = 0 and @signUpUserForApp = 1 -- user not yet signed up for all and request for a login + signup
 	begin
-		select error='invalid_client_id', error_description='client identifier invalid'
-		return
+		exec @userSignedUpForApp = [dbo].[stp_AuthAutoSignUpUserForApp] @userId=@UserId, @client_id=@client_id
 	end
 
-	if @signUpUserForApp=1 and not exists(select [id] from [dbo].[AuthAppUser] (nolock) where [UserId]=@UserId and [client_id]=@client_id)
+	if @userSignedUpForApp = 0
 	begin
-		insert into [dbo].[AuthAppUser] ([UserId],[client_id],[time]) values (@UserId,@client_id,getdate())
-	end 
-
-	if not exists(select [id] from [dbo].[AuthAppUser] (nolock) where [UserId]=@UserId and [client_id]=@client_id)
-	begin
-		select error='not_authorized', error_description='not authorized'
+		select [error]='not_authorized', [error_description]='not authorized'
 		return
 	end
+	--=============================================================================================================================
 
 	select [error]=null, [error_description]=null
 
@@ -507,6 +502,73 @@ BEGIN
 	select error=null, error_description=null
 	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@new_access_token, @refresh_token=@new_refresh_token
 
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[stp_AuthAutoSignUpUserForApp]
+	@userId varchar(100)
+	,@client_id varchar(250)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @userSignedUpForApp int
+
+	declare @allow_auto_app_sign_up bit
+	declare @stp_auto_app_sign_up varchar(250)
+	select
+	@allow_auto_app_sign_up=[allow_auto_app_sign_up]
+	,@stp_auto_app_sign_up=[stp_auto_app_sign_up]
+	from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
+	if (@allow_auto_app_sign_up is null or @allow_auto_app_sign_up=0)
+		set @userSignedUpForApp=0
+	else
+	begin
+		declare @sql nvarchar(500)
+		declare @ParmDefinition nvarchar(500)
+		set @ParmDefinition='@id varchar(100)'
+		set @sql = 'exec ' + @stp_auto_app_sign_up + ' @userId=@id'
+		exec [sys].[sp_executesql] @sql, @ParmDefinition, @id=@userId
+
+		exec @userSignedUpForApp = [dbo].[stp_AuthIsUserSignedUpForApp] @userId = @userId, @client_id=@client_id
+	end
+	return @userSignedUpForApp
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[stp_AuthIsUserSignedUpForApp]
+(
+	@userId varchar(100)
+	,@client_id varchar(250)
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @func_is_user_signed_up_for_app varchar(250)
+	select @func_is_user_signed_up_for_app=[func_is_user_signed_up_for_app] from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
+	if @func_is_user_signed_up_for_app is not null
+	begin
+		declare @sql nvarchar(500)
+		declare @ParmDefinition nvarchar(500)
+		set @ParmDefinition='@id varchar(100)'
+		set @sql = 'select [signedUp]=' + @func_is_user_signed_up_for_app + '(@id)'
+		declare @tmp table
+		(
+			[signedUp] bit
+		)
+		insert into @tmp
+		exec [sys].[sp_executesql] @sql, @ParmDefinition, @id=@userId
+		declare @signedUp bit
+		select @signedUp=[signedUp] from @tmp
+		return cast(@signedUp as int)
+	end
+	else
+	begin
+		RETURN 0
+	end
 END
 
 GO
