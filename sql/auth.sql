@@ -105,6 +105,9 @@ CREATE TABLE [dbo].[AuthUser](
 
 GO
 
+CREATE UNIQUE INDEX [IX_AuthUser] ON [dbo].[AuthUser] ([username])
+GO
+
 CREATE VIEW [dbo].[vAuthActiveConnectedApp]
 as
 select
@@ -128,10 +131,12 @@ where
 
 GO
 
-CREATE view [dbo].[vAuthActiveUser] as
+CREATE VIEW [dbo].[vAuthUser]
+as
 select
 [id]=[Id]
 ,[username]
+,[enabled]=[IsActive]
 ,[email]=[Email]
 ,[firstName]=[FirstName]
 ,[lastName]=[LastName]
@@ -147,7 +152,15 @@ select
 ,[lastModifiedDate]=[LastModifiedDate]
 ,[lastModifiedById]=[LastModifiedById]
 from [dbo].[AuthUser] (nolock)
-where [IsActive]=1
+
+GO
+
+CREATE VIEW [dbo].[vAuthActiveUser]
+as
+select
+*
+from [dbo].[vAuthUser] (nolock)
+where [enabled]=1
 
 GO
 
