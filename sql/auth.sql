@@ -521,9 +521,9 @@ BEGIN
 	@allow_auto_app_sign_up=[allow_auto_app_sign_up]
 	,@stp_auto_app_sign_up=[stp_auto_app_sign_up]
 	from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
-	if (@allow_auto_app_sign_up is null or @allow_auto_app_sign_up=0)
+	if (@allow_auto_app_sign_up is null or @allow_auto_app_sign_up=0) -- auto sign up is NOT allowed for the app
 		set @userSignedUpForApp=0
-	else
+	else -- auto sign up is allowed for the app
 	begin
 		declare @sql nvarchar(500)
 		declare @ParmDefinition nvarchar(500)
