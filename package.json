@@ -16,6 +16,10 @@
   "author": "Wen Chang",
   "license": "MIT",
   "dependencies": {
+    "@types/body-parser": "0.0.33",
+    "@types/express": "^4.0.33",
+    "@types/lodash": "^4.14.36",
+    "@types/node": "^6.0.42",
     "adauth": "^0.1.4",
     "ajaxon": "git+https://github.com/wchang28/ajaxon.git",
     "body-parser": "^1.15.0",
