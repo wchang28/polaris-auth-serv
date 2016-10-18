@@ -1,3 +1,4 @@
+// route /services/authorize
 import * as express from 'express';
 import * as core from 'express-serve-static-core';
 import {IGlobal} from '../../global';
@@ -10,6 +11,22 @@ let router = express.Router();
 
 let getGlobal = (req: express.Request) : IGlobal => {return req.app.get('global');}
 let getConnectedApp = (req: express.Request) : authDB.IConnectedAppDetail => {return req['connected-app'];}
+
+// all handlers in the '/authorize' need to have a 'x-client-app' request header field
+let clientAppMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {
+    let s = req.headers[auth_client.AuthClient.getClientAppHeaderField()];
+    try {
+        let clientAppSettings:oauth2.ClientAppSettings = JSON.parse(s);
+        if (!clientAppSettings.client_id) {
+            throw oauth2.errors.bad_client_id;
+        } else {
+            req['client-app'] = clientAppSettings;
+            next();
+        }
+    } catch(e) {
+        res.status(401).json(oauth2.errors.bad_client_id);
+    }
+}
 
 let getClientAppVerifier = (requireRedirectUrl: boolean, requireClientSecret: boolean) => {
     return (req:express.Request, done: (err:any, connectedApp: authDB.IConnectedAppDetail) => void) => {
@@ -42,6 +59,9 @@ let getClientAppVerifierMiddleware = (requireRedirectUrl: boolean, requireClient
         });
     });
 }
+
+router.use(clientAppMiddleware);
+
 router.post('/get_connected_app', getClientAppVerifierMiddleware(true, false), (req: express.Request, res: express.Response) => {
     let connectedApp = getConnectedApp(req);
     let ret: auth_client.IConnectedApp = {
@@ -134,16 +154,6 @@ router.post('/refresh_token', getClientAppVerifierMiddleware(false, false), (req
             res.status(400).json(err);
         else
             res.json(access);
-    });
-});
-
-router.post('/verify_token', getClientAppVerifierMiddleware(true, true), (req: express.Request, res: express.Response) => {
-    let accessToken: oauth2.AccessToken = req.body;
-    getGlobal(req).authDB.verifyAccessToken(getConnectedApp(req).client_id, accessToken, (err:any, user: auth_client.IAuthorizedUser) => {
-        if (err)
-            res.status(400).json(err);
-        else
-            res.json(user);
     });
 });
 

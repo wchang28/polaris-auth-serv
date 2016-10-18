@@ -423,8 +423,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[stp_AuthVerifyAccessToken]
-	@client_id varchar(250)
-	,@token_type varchar(50)
+	@token_type varchar(50)
 	,@access_token varchar(250)
 AS
 BEGIN
@@ -442,8 +441,7 @@ BEGIN
 	inner join [dbo].[vAuthActiveConnectedApp] app
 	on at.[client_id]=app.[client_id]
 	where
-	at.[client_id]=@client_id
-	and at.[token_type]=@token_type
+	at.[token_type]=@token_type
 	and at.[access_token]=@access_token
 
 	if @UserId is null

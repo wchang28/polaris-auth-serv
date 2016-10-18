@@ -239,9 +239,8 @@ export class AuthorizationDB extends SimpleMSSQL {
             }
         });
     }
-    verifyAccessToken(client_id:string, accessToken: oauth2.AccessToken, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
-        let data = this.extendParams(client_id, accessToken);
-        this.execute('[dbo].[stp_AuthVerifyAccessToken]', data, (err:any, recordsets:any[]) => {
+    verifyAccessToken(accessToken: oauth2.AccessToken, done:(err:any, user: auth_client.IAuthorizedUser) => void) : void {
+        this.execute('[dbo].[stp_AuthVerifyAccessToken]', accessToken, (err:any, recordsets:any[]) => {
             if (err)
                 done(err, null);
             else {
