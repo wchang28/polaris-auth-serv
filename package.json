@@ -16,21 +16,21 @@
   "author": "Wen Chang",
   "license": "MIT",
   "dependencies": {
-    "@types/body-parser": "0.0.33",
-    "@types/express": "^4.0.33",
-    "@types/lodash": "^4.14.36",
-    "@types/node": "^6.0.42",
+    "@types/body-parser": "^1.16.3",
+    "@types/express": "^4.0.35",
+    "@types/lodash": "^4.14.64",
+    "@types/node": "^6.0.73",
     "adauth": "^0.1.4",
     "ajaxon": "git+https://github.com/wchang28/ajaxon.git",
-    "body-parser": "^1.15.0",
-    "express": "^4.13.4",
-    "express-web-seerver": "git+https://github.com/wchang28/express-web-server.git",
-    "lodash": "^4.11.1",
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "express-web-server": "git+https://github.com/wchang28/express-web-server.git",
+    "lodash": "^4.17.4",
     "msnodesqlv8": "^0.2.3",
     "mssql-simple": "git+https://github.com/wchang28/mssql-simple.git",
     "no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
     "oauth2": "git+https://github.com/wchang28/oauth2.git",
     "polaris-auth-client": "git+https://github.com/wchang28/polaris-auth-client.git",
-    "sha512": "0.0.1"
+    "sha512": "^0.0.1"
   }
 }
