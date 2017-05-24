@@ -91,8 +91,14 @@ let credentialInputsVerifierMiddleware = (req:express.Request, res:express.Respo
                     ,domainDn: ad_domainDn
                 };
                 let auth = new ADAuth(adAuthOptions);
+                if (params.username.indexOf('@') === -1) {
+                    let upnDomainName = adAuthOptions.domainDn.toLowerCase().replace(/,/gi, ".").replace(/dc=/gi, "");
+                    params.username += "@" + upnDomainName;
+                }
+                /*
                 if (params.username.indexOf('\\') === -1 && connectedApp.ad_default_domain)
                     params.username = connectedApp.ad_default_domain + '\\' + params.username;
+                */
                 auth.authenticate(params.username, params.password, (err, u) => {
                     auth.close((err:any) => {
                         if (err)
