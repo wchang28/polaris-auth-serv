@@ -252,6 +252,73 @@ END
 
 GO
 
+CREATE PROCEDURE [dbo].[stp_AuthIsUserSignedUpForApp]
+(
+	@userId varchar(100)
+	,@client_id varchar(250)
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @func_is_user_signed_up_for_app varchar(250)
+	select @func_is_user_signed_up_for_app=[func_is_user_signed_up_for_app] from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
+	if @func_is_user_signed_up_for_app is not null
+	begin
+		declare @sql nvarchar(500)
+		declare @ParmDefinition nvarchar(500)
+		set @ParmDefinition='@id varchar(100)'
+		set @sql = 'select [signedUp]=' + @func_is_user_signed_up_for_app + '(@id)'
+		declare @tmp table
+		(
+			[signedUp] bit
+		)
+		insert into @tmp
+		exec [sys].[sp_executesql] @sql, @ParmDefinition, @id=@userId
+		declare @signedUp bit
+		select @signedUp=[signedUp] from @tmp
+		return cast(@signedUp as int)
+	end
+	else
+	begin
+		RETURN 0
+	end
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[stp_AuthAutoSignUpUserForApp]
+	@userId varchar(100)
+	,@client_id varchar(250)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @userSignedUpForApp int
+
+	declare @allow_auto_app_sign_up bit
+	declare @stp_auto_app_sign_up varchar(250)
+	select
+	@allow_auto_app_sign_up=[allow_auto_app_sign_up]
+	,@stp_auto_app_sign_up=[stp_auto_app_sign_up]
+	from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
+	if (@allow_auto_app_sign_up is null or @allow_auto_app_sign_up=0) -- auto sign up is NOT allowed for the app
+		set @userSignedUpForApp=0
+	else -- auto sign up is allowed for the app
+	begin
+		declare @sql nvarchar(500)
+		declare @ParmDefinition nvarchar(500)
+		set @ParmDefinition='@id varchar(100)'
+		set @sql = 'exec ' + @stp_auto_app_sign_up + ' @userId=@id'
+		exec [sys].[sp_executesql] @sql, @ParmDefinition, @id=@userId
+
+		exec @userSignedUpForApp = [dbo].[stp_AuthIsUserSignedUpForApp] @userId = @userId, @client_id=@client_id
+	end
+	return @userSignedUpForApp
+END
+
+GO
+
 CREATE PROCEDURE [dbo].[stp_AuthLogin]
     @client_id varchar(250)
 	,@username varchar(200)
@@ -500,73 +567,6 @@ BEGIN
 	select error=null, error_description=null
 	exec [dbo].[stp_AuthCreateAccess] @client_id=@client_id, @UserId=@UserId, @token_type=@token_type, @access_token=@new_access_token, @refresh_token=@new_refresh_token
 
-END
-
-GO
-
-CREATE PROCEDURE [dbo].[stp_AuthAutoSignUpUserForApp]
-	@userId varchar(100)
-	,@client_id varchar(250)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	declare @userSignedUpForApp int
-
-	declare @allow_auto_app_sign_up bit
-	declare @stp_auto_app_sign_up varchar(250)
-	select
-	@allow_auto_app_sign_up=[allow_auto_app_sign_up]
-	,@stp_auto_app_sign_up=[stp_auto_app_sign_up]
-	from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
-	if (@allow_auto_app_sign_up is null or @allow_auto_app_sign_up=0) -- auto sign up is NOT allowed for the app
-		set @userSignedUpForApp=0
-	else -- auto sign up is allowed for the app
-	begin
-		declare @sql nvarchar(500)
-		declare @ParmDefinition nvarchar(500)
-		set @ParmDefinition='@id varchar(100)'
-		set @sql = 'exec ' + @stp_auto_app_sign_up + ' @userId=@id'
-		exec [sys].[sp_executesql] @sql, @ParmDefinition, @id=@userId
-
-		exec @userSignedUpForApp = [dbo].[stp_AuthIsUserSignedUpForApp] @userId = @userId, @client_id=@client_id
-	end
-	return @userSignedUpForApp
-END
-
-GO
-
-CREATE PROCEDURE [dbo].[stp_AuthIsUserSignedUpForApp]
-(
-	@userId varchar(100)
-	,@client_id varchar(250)
-)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	declare @func_is_user_signed_up_for_app varchar(250)
-	select @func_is_user_signed_up_for_app=[func_is_user_signed_up_for_app] from [dbo].[vAuthActiveConnectedApp] (nolock) where [client_id] = @client_id
-	if @func_is_user_signed_up_for_app is not null
-	begin
-		declare @sql nvarchar(500)
-		declare @ParmDefinition nvarchar(500)
-		set @ParmDefinition='@id varchar(100)'
-		set @sql = 'select [signedUp]=' + @func_is_user_signed_up_for_app + '(@id)'
-		declare @tmp table
-		(
-			[signedUp] bit
-		)
-		insert into @tmp
-		exec [sys].[sp_executesql] @sql, @ParmDefinition, @id=@userId
-		declare @signedUp bit
-		select @signedUp=[signedUp] from @tmp
-		return cast(@signedUp as int)
-	end
-	else
-	begin
-		RETURN 0
-	end
 END
 
 GO
