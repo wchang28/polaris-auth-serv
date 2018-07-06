@@ -1,11 +1,12 @@
 {
   "name": "polaris-auth-serv",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Polaris Authentication Server",
   "main": "./js/app.js",
   "scripts": {
     "start": "node ./js/app.js",
-    "postinstall": "grunt"
+    "build": "tsc",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "authentication"
@@ -17,25 +18,21 @@
   "author": "Wen Chang",
   "license": "MIT",
   "dependencies": {
-    "@types/body-parser": "^1.16.3",
-    "@types/express": "^4.0.35",
-    "@types/lodash": "^4.14.64",
-    "@types/node": "^6.0.73",
+    "@types/body-parser": "^1.17.0",
+    "@types/express": "^4.16.0",
+    "@types/lodash": "^4.14.110",
+    "@types/node": "^10.5.2",
     "adauth": "^0.1.4",
     "ajaxon": "git+https://github.com/wchang28/ajaxon.git",
-    "body-parser": "^1.17.1",
-    "express": "^4.15.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
     "express-web-server": "git+https://github.com/wchang28/express-web-server.git",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.10",
     "mssql-simple": "git+https://github.com/wchang28/mssql-simple.git",
     "no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
     "oauth2": "git+https://github.com/wchang28/oauth2.git",
     "polaris-auth-client": "git+https://github.com/wchang28/polaris-auth-client.git",
     "sha512": "^0.0.1",
-    "typescript": "~2.3.2"
-  },
-  "devDependencies": {
-    "grunt": "^1.0.1",
-    "grunt-ts": "^6.0.0-beta.6"
+    "typescript": "^2.9.2"
   }
 }
