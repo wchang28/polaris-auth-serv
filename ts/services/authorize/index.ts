@@ -14,7 +14,7 @@ let getConnectedApp = (req: express.Request) : authDB.IConnectedAppDetail => {re
 
 // all handlers in the '/authorize' need to have a 'x-client-app' request header field
 let clientAppMiddleware = (req:express.Request, res:express.Response, next:express.NextFunction) => {
-    let s = req.headers[auth_client.AuthClient.getClientAppHeaderField()];
+    let s = req.headers[auth_client.AuthClient.getClientAppHeaderField()] as string;
     try {
         let clientAppSettings:oauth2.ClientAppSettings = JSON.parse(s);
         if (!clientAppSettings.client_id) {
